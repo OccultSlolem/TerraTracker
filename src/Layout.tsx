@@ -2,7 +2,6 @@ import { useColorModeValue, Flex, Stack, Box, Heading, Container, Text, useDiscl
 import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-react";
 import { mdiAccount, mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import Icon from "@mdi/react";
-import { useConvexAuth } from "convex/react";
 import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 

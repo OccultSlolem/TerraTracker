@@ -1,4 +1,4 @@
-import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box, Button, Divider, FormControl, FormHelperText, FormLabel, HStack, Heading, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Textarea, Tooltip, VStack, useDisclosure, useMediaQuery, useToast } from "@chakra-ui/react";
+import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box, Button, Divider, FormControl, FormHelperText, FormLabel, HStack, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Stack, Text, Textarea, Tooltip, VStack, useDisclosure, useMediaQuery, useToast } from "@chakra-ui/react";
 import GoogleMapsView from "./Map";
 import { useEffect, useState } from "react";
 import { RedirectToSignIn, RedirectToSignUp, RedirectToUserProfile, SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
@@ -160,18 +160,7 @@ export function Home() {
   useEffect(() => {
     setBlockSubmit(!formValidate());
   }, [formState]);
-
-  // TODO
-  function TutorialModal() {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    
-    return(
-      <Modal isOpen={isOpen} onClose={onClose}>
-
-      </Modal>
-    )
-  }
-
+  
   function ConfirmModal() {
     const { isOpen, onOpen, onClose } = useDisclosure();
 

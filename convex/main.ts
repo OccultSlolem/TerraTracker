@@ -1,8 +1,6 @@
 import { Doc } from './_generated/dataModel';
-import { action, internalAction, internalMutation, internalQuery, mutation, query } from './_generated/server';
+import { internalMutation, internalQuery, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { api, internal } from './_generated/api';
-import OpenAI from 'openai';
 
 
 export interface Response {
@@ -122,10 +120,10 @@ function trackerDocToInterface(tracker: Doc<'trackers'>): Tracker {
 interface GetTrackersMultiResponse extends Response {
   trackers?: Tracker[];
 }
-//TODO: add tracker events
+
 export const getUserTrackers = query({
   args: {},
-  handler: async (ctx, args): Promise<GetTrackersMultiResponse> => {
+  handler: async (ctx, _): Promise<GetTrackersMultiResponse> => {
     const id = await ctx.auth.getUserIdentity();
     if (!id) {
       return unauthorized;
@@ -189,16 +187,6 @@ export const getSingleTracker = internalQuery({
     } 
   }
 });
-
-export const talkToGPT4 = internalAction({
-  args: {
-    systemMessage: v.string(),
-    prompt: v.string(),
-  },
-  handler: async (ctx, args) => {
-    
-  }
-})
 
 export const logTrackerEvent = internalMutation({
   args: {
