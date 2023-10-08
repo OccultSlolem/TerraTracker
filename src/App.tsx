@@ -439,44 +439,8 @@ export function AuthPage({ fn } : { fn: 'sign-in' | 'sign-up' | 'settings' }) {
 }
 
 export default function MyTrackers() {
-
-  /*
-  export default defineSchema({
-  trackers: defineTable({
-    id: v.string(),
-    accountId: v.string(),
-    name: v.string(),
-    description: v.string(),
-    location: v.object({
-      lat: v.number(),
-      lng: v.number(),
-    }),
-    radius: v.number(),
-    emails: v.array(v.object({
-      email: v.string(),
-      verified: v.boolean(),
-    })),
-    webhookTargets: v.array(v.string()),
-    signingSecret: v.string(),
-  }),
-  trackerEvents: defineTable({
-    id: v.string(),
-    trackerId: v.string(),
-    eventType: v.string(),
-    eventData: v.any(), // TODO: define this
-    gpt4Response: v.any(), // TODO: define this
-  }),
-});
-*/
-
   const navigate = useNavigate();
   const trackersQ = useQuery(api.main.getUserTrackers);
-  const yoloAction = useAction(api.nodeactions.checkHLS);
-
-  async function lmao(trackerId: string) {
-    const res = await yoloAction({ trackerId });
-    console.log(res);
-  }
 
   if (!trackersQ || !trackersQ.trackers) {
     return (
@@ -509,7 +473,7 @@ export default function MyTrackers() {
                     <HStack>
                       <Button colorScheme="blue">Edit</Button>
                       <Button colorScheme="red">Delete</Button>
-                      <Button colorScheme="green" onClick={() => lmao(tracker.id)}>Test</Button>
+                      <Button colorScheme="green" onClick={() => navigate(`/trackers/${tracker.id}`)}>View</Button>
                     </HStack>
                   </AccordionPanel>
                 </AccordionItem>
@@ -525,6 +489,26 @@ export default function MyTrackers() {
 export function TrackerDetail() {
   const { trackerId } = useParams();
   const trackerQ = useQuery(api.main.getTrackerEvents, { trackerId: trackerId || '' });
+  const runAction = useAction(api.nodeactions.checkHLS);
+
+  async function runNow() {
+    if (!trackerId) return;
+    const res = await runAction({ trackerId });
+    console.log(res);
+  }
+
+  function HStackSemiBoldLabel({ title, label }: { title: string, label: string }) {
+    return (
+      <HStack>
+        <Heading size="sm">
+          {title}
+        </Heading>
+        <Text fontStyle="bold" maxW="md">
+          {label}
+        </Text>
+      </HStack>
+    )
+  }
 
   if (!trackerQ || trackerQ.events === undefined) return ( <LoadingPage /> );
 
@@ -535,6 +519,12 @@ export function TrackerDetail() {
       </Heading>
       <Divider />
 
+      <Tooltip label="This will take a minute or so. The tracker will update automatically when new satellite data is available">
+        <Button colorScheme="green" onClick={runNow}>
+          Re-run analysis now
+        </Button>
+      </Tooltip>
+
       <Accordion allowToggle>
         {
           trackerQ.events?.map((e, i) => (
@@ -543,19 +533,15 @@ export function TrackerDetail() {
                 <Heading size="sm">{e.id}</Heading>
               </AccordionButton>
               <AccordionPanel>
-                {Object.keys(e).map((k,i) => (
-                  <HStack key={i}>
-                    <Heading size="sm">
-                      {k}
-                    </Heading>
+                <a href={e.satImage} target="_blank" rel="noreferrer noopener">
+                  <Button>Satellite Imagery</Button>
+                </a>
 
-                    <Text>
-                      {/* @ts-ignore */}
-                      {e[k]}
-                    </Text>
-                  </HStack>
+                <HStackSemiBoldLabel title="Event Type" label={e.eventType} />
+                <HStackSemiBoldLabel title="Cloud Cover" label={`${e.cloudCover}%`} />
+                <HStackSemiBoldLabel title="Average Reflectance" label={e.imgAvgColor.toString()} />
+                <HStackSemiBoldLabel title="AI Analysis" label={e.gpt4Response} />
 
-                ))}
               </AccordionPanel>
             </AccordionItem>
           ))

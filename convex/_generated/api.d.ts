@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as http from "../http";
 import type * as main from "../main";
 import type * as nodeactions from "../nodeactions";
 
@@ -26,6 +27,7 @@ import type * as nodeactions from "../nodeactions";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  http: typeof http;
   main: typeof main;
   nodeactions: typeof nodeactions;
 }>;

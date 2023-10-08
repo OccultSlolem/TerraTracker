@@ -22,7 +22,6 @@
     "esri-loader": "^3.7.0",
     "framer-motion": "^10.16.4",
     "geotiff": "^2.0.7",
-    "geotiff.js": "^1.0.1",
     "mgrs": "^2.0.0",
     "ncp": "^2.0.0",
     "openai": "^4.11.1",
