@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RedirectToSignIn, RedirectToSignUp, RedirectToUserProfile, SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from '../convex/_generated/api';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toPoint as mgrsToWgs } from 'mgrs';
 import Icon from "@mdi/react";
 import { mdiHelpCircle, mdiPlusCircle } from "@mdi/js";
@@ -160,7 +160,7 @@ export function Home() {
   useEffect(() => {
     setBlockSubmit(!formValidate());
   }, [formState]);
-  
+
   function ConfirmModal() {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -518,6 +518,49 @@ export default function MyTrackers() {
           </Accordion>
         )
       }
+    </VStack>
+  )
+}
+
+export function TrackerDetail() {
+  const { trackerId } = useParams();
+  const trackerQ = useQuery(api.main.getTrackerEvents, { trackerId: trackerId || '' });
+
+  if (!trackerQ || trackerQ.events === undefined) return ( <LoadingPage /> );
+
+  return (
+    <VStack minH="100vh">
+      <Heading>
+        Tracker Event Log
+      </Heading>
+      <Divider />
+
+      <Accordion allowToggle>
+        {
+          trackerQ.events?.map((e, i) => (
+            <AccordionItem key={i}>
+              <AccordionButton>
+                <Heading size="sm">{e.id}</Heading>
+              </AccordionButton>
+              <AccordionPanel>
+                {Object.keys(e).map((k,i) => (
+                  <HStack key={i}>
+                    <Heading size="sm">
+                      {k}
+                    </Heading>
+
+                    <Text>
+                      {/* @ts-ignore */}
+                      {e[k]}
+                    </Text>
+                  </HStack>
+
+                ))}
+              </AccordionPanel>
+            </AccordionItem>
+          ))
+        }
+      </Accordion>
     </VStack>
   )
 }

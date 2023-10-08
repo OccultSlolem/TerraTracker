@@ -197,7 +197,6 @@ export const logTrackerEvent = internalMutation({
     satImage: v.string(),
     imgAvgColor: v.number(),
     tileAvgColor: v.array(v.number()),
-    bbox: v.array(v.array(v.number())),
   },
   handler: async (ctx, args) => {
     const id = await ctx.auth.getUserIdentity();
@@ -214,10 +213,54 @@ export const logTrackerEvent = internalMutation({
       satImage: args.satImage,
       imgAvgColor: args.imgAvgColor,
       tileAvgColor: args.tileAvgColor,
-      bbox: args.bbox,
     };
 
     await ctx.db.insert('trackerEvents', event); 
+  }
+});
+
+interface TrackerEvent {
+  id: string;
+  trackerId: string;
+  eventType: string;
+  gpt4Response: string;
+  cloudCover: number;
+  satImage: string;
+  imgAvgColor: number;
+  tileAvgColor: number[];
+}
+export interface GetTrackerEventsResponse extends Response {
+  events?: TrackerEvent[];
+}
+export const getTrackerEvents = query({
+  args: {
+    trackerId: v.string(),
+  },
+  handler: async (ctx, args): Promise<GetTrackerEventsResponse> => {
+    const id = await ctx.auth.getUserIdentity();
+    if (!id) {
+      return unauthorized;
+    }
+
+    const events = await ctx.db.query('trackerEvents')
+      .filter((q) => q.eq(q.field('trackerId'), args.trackerId))
+      .collect();
+
+    return {
+      code: 200,
+      events: events.map((e) => {
+        return {
+          id: e.id,
+          trackerId: e.trackerId,
+          eventType: e.eventType,
+          gpt4Response: e.gpt4Response,
+          cloudCover: e.cloudCover,
+          satImage: e.satImage,
+          imgAvgColor: e.imgAvgColor,
+          tileAvgColor: e.tileAvgColor,
+        } as TrackerEvent;
+      }),
+    } as GetTrackerEventsResponse;
   }
 });
 

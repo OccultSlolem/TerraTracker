@@ -3,7 +3,7 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
-import MyTrackers, { AuthPage, Home } from "./App";
+import MyTrackers, { AuthPage, Home, TrackerDetail } from "./App";
 import { Layout } from "./Layout";
 
 export default function App() {
@@ -23,6 +23,7 @@ export default function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/trackers" element={<MyTrackers />} />
+                <Route path="/trackers/:trackerId" element={<TrackerDetail />} />
                 <Route path="/sign-in" element={<AuthPage fn="sign-in" />} />
                 <Route path="/sign-up" element={<AuthPage fn="sign-up" />} />
                 <Route path="/account-settings" element={<AuthPage fn="settings" />} />

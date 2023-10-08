@@ -168,20 +168,24 @@ export const checkHLS = action({
     const tiles = [];
     console.log(width, height);
 
-    try {
-      for (let x = 0; x < width; x += tileWidth) {
-        for (let y = 0; y < height; y += tileHeight) {
-          const tile = await image.readRasters({
-            window: [x, y, x + tileWidth, y + tileHeight],
-          });
-          tiles.push(tile);
+    for (let x = 0; x < (width / 2); x += tileWidth) {
+      for (let y = 0; y < (height / 2); y += tileHeight) {
+          try {
+            console.log([x, y, x + tileWidth - 5, y + tileHeight - 5]);
+            const tile = await image.readRasters({
+              window: [x, y, x + tileWidth - 5, y + tileHeight - 5],
+              samples: [0],
+              interleave: true,
+            });
+            tiles.push(tile);
+          } catch (e) {
+            // lmao
+            console.error('Something went wrong while reading the image.');
+            console.error(e);
+            return internalError;
+          }
         }
       }
-    } catch (e) {
-      console.error('Something went wrong while reading the image.');
-      console.error(e);
-      return internalError;
-    }
 
     // Get the average color for each tile
     const tileAverageColors = [];
@@ -237,29 +241,34 @@ export const checkHLS = action({
       frequency_penalty: 0,
       presence_penalty: 0,
     });
-    const gpt4Response = response.choices[0].message;
+    const gpt4Response = response.choices[0].message.content;
 
     console.log("Firing webhooks...");
     // Send the webhook
     const webhookTargets = tracker.tracker.webhookTargets;
     for (const target of webhookTargets) {
-      await fetch(target, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "signing-secret": tracker.tracker.signingSecret,
-        },
-        body: JSON.stringify({
-          trackerId: args.trackerId,
-          eventType: "hls",
-          gpt4Response,
-          cloudCover: cloudCoverPercentage,
-          satImage: sampleImageResponse.url,
-          imgAvgColor: imgAverage,
-          tileAvgColor: tileAverageColors,
-          bbox,
-        }),
-      });
+      try {
+        await fetch(target, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "signing-secret": tracker.tracker.signingSecret,
+          },
+          body: JSON.stringify({
+            trackerId: args.trackerId,
+            eventType: "hls",
+            gpt4Response,
+            cloudCover: cloudCoverPercentage,
+            satImage: sampleImageResponse.url,
+            imgAvgColor: imgAverage,
+            tileAvgColor: tileAverageColors,
+            bbox,
+          }),
+        });
+      } catch(e) {
+        console.error(`Failed to trigger webhook ${target}.`)
+        console.error(e);
+      }
     }
 
     console.log("Logging event...");
@@ -272,7 +281,6 @@ export const checkHLS = action({
       satImage: sampleImageResponse.url,
       imgAvgColor: imgAverage,
       tileAvgColor: tileAverageColors,
-      bbox,
     });
 
     console.log("Done!");

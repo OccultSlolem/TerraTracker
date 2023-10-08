@@ -27,10 +27,10 @@ export default defineSchema({
     cloudCover: v.number(),
     imgAvgColor: v.number(),
     tileAvgColor: v.array(v.number()),
-    bbox: v.array(
-      // [[lat, lng], [lat, lng]]
-      // lower left, upper right
-      v.array(v.number())
-    ),
+    // (
+    //   // [[lat, lng], [lat, lng]]
+    //   // lower left, upper right
+    //   v.array(v.number())
+    // ),
   })
 });
